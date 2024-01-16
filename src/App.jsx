@@ -3,6 +3,7 @@ import Filter from "./components/Filter";
 import PersonForm from './components/PersonForm';
 import Persons from './components/Persons'
 import personService from './services/persons'
+import Notification from "./components/Notification";
 
 
 const App = () => {
@@ -10,6 +11,7 @@ const App = () => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState('')
   const [filterQuery, setFilterQuery] = useState('')
+  const [message, setMessage] = useState(null)
 
 
   useEffect(() => {
@@ -55,6 +57,17 @@ const App = () => {
               setNewName("");
               setNewNumber("");
             })
+            .catch(error => {
+              setMessage({
+                display: `Information of ${personThatAlreadyExists.name} has already been removed from server`,
+                isError: true
+              })
+              setTimeout(() => setMessage(null), 5000)
+              const newPersons = persons.filter(
+                (p) => p.id !== personThatAlreadyExists.id
+              );
+              setPersons(newPersons);
+            })
         }
       }
     } else {
@@ -67,6 +80,11 @@ const App = () => {
         .create(newPersonObj)
         .then(newPerson => {
           setPersons(persons.concat(newPerson));
+          setMessage({
+            display: `Added ${newPerson.name}`,
+            isError: false
+          })
+          setTimeout(() => setMessage(null), 5000)
           setNewName("");
           setNewNumber("");
         })
@@ -107,6 +125,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message} />
       <Filter
         filterQuery={filterQuery}
         handleFilterQueryChange={handleFilterQueryChange}
