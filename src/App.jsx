@@ -2,14 +2,15 @@ import { useEffect, useState } from "react";
 import Filter from "./components/Filter";
 import PersonForm from './components/PersonForm';
 import Persons from './components/Persons'
-import axios from "axios";
 import personService from './services/persons'
+
 
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState('')
   const [filterQuery, setFilterQuery] = useState('')
+
 
   useEffect(() => {
     personService
@@ -18,6 +19,7 @@ const App = () => {
         setPersons(initialPersons)
       })
   }, [])
+
 
   const addPerson = e => {
     e.preventDefault()
@@ -41,6 +43,7 @@ const App = () => {
     }
   }
 
+
   const handleNameChange = e => {
     setNewName(e.target.value)
   }
@@ -51,10 +54,26 @@ const App = () => {
     setFilterQuery(e.target.value)
   }
 
+
+  const handleRemovingPerson = id => {
+    const personToDelete = persons.find(p => p.id === id)
+
+    if (window.confirm(`Delete ${personToDelete.name}?`)) {
+      personService
+        .remove(id)
+        .then(deletedPerson => {
+          const newPersons = persons.filter(p => p.id !== deletedPerson.id)
+          setPersons(newPersons)
+        })
+    }
+  }
+
+
   const personsToShow = filterQuery
     ? persons.filter(p => p.name.toLowerCase().includes(filterQuery.toLowerCase()))
     : persons
 
+  
   return (
     <div>
       <h2>Phonebook</h2>
@@ -71,7 +90,10 @@ const App = () => {
         handleNumberChange={handleNumberChange}
       />
       <h2>Numbers</h2>
-      <Persons personsToShow={personsToShow} />
+      <Persons
+        personsToShow={personsToShow}
+        handleRemovingPerson={handleRemovingPerson}
+      />
     </div>
   );
 };
