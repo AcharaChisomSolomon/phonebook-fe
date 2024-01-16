@@ -23,10 +23,40 @@ const App = () => {
 
   const addPerson = e => {
     e.preventDefault()
-    const newPersonAlreadyExists = persons.some(p => p.name === newName)
+    const newPersonNameAlreadyExists = persons.some(
+      (p) => p.name.toLowerCase() === newName.toLowerCase()
+    );
+    
 
-    if (newPersonAlreadyExists) {
-      window.alert(`${newName} is already added to phonebook`)
+    if (newPersonNameAlreadyExists) {
+      const newPersonNumberAlreadyExists = persons.some(
+        (p) => p.number === newNumber
+      );
+
+      if (newPersonNumberAlreadyExists) {
+        window.alert(`${newName} is already added to phonebook`);
+      } else {
+        const personThatAlreadyExists = persons.find(
+          (p) => p.name.toLowerCase() === newName.toLowerCase()
+        );
+        const message = `${personThatAlreadyExists.name} is already added to phonebook, replace the old number with the new one?`;
+
+        if (window.confirm(message)) {
+          const updatedPerson = {
+            ...personThatAlreadyExists,
+            number: newNumber
+          }
+
+          personService
+            .update(personThatAlreadyExists.id, updatedPerson)
+            .then(updatedPerson => {
+              const updatedPersons = persons.map(p => p.id !== updatedPerson.id ? p : updatedPerson)
+              setPersons(updatedPersons)
+              setNewName("");
+              setNewNumber("");
+            })
+        }
+      }
     } else {
       const newPersonObj = {
         name: newName,
