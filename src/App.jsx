@@ -88,6 +88,14 @@ const App = () => {
           setNewName("");
           setNewNumber("");
         })
+        .catch(error => {
+          console.log(error);
+          setMessage({
+            display: `${error.response.data.error}`,
+            isError: true
+          })
+          setTimeout(() => setMessage(null), 5000)
+        })
     }
   }
 
